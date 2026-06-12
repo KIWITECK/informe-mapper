@@ -232,7 +232,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   <section class="stage">
     <div class="cards">
-      <label class="drop" id="dropReport" tabindex="0" role="button" aria-label="Cargar informe de artículos">
+      <div class="drop" id="dropReport" tabindex="0" role="button" aria-label="Cargar informe de artículos">
         <div class="check">✓</div>
         <div>
           <div class="role">Archivo 1 · Fuente</div>
@@ -241,9 +241,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="hint">Arrastra aquí o haz clic · usa la hoja «productos ok»</div>
         <div class="file" id="fileReport"></div>
         <input type="file" accept=".xlsx,.xls" hidden>
-      </label>
+      </div>
 
-      <label class="drop" id="dropTpl" tabindex="0" role="button" aria-label="Cargar plantilla de Parze">
+      <div class="drop" id="dropTpl" tabindex="0" role="button" aria-label="Cargar plantilla de Parze">
         <div class="check">✓</div>
         <div>
           <div class="role">Archivo 2 · Destino</div>
@@ -252,7 +252,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="hint">Arrastra aquí o haz clic · trae sus catálogos</div>
         <div class="file" id="fileTpl"></div>
         <input type="file" accept=".xlsx,.xls" hidden>
-      </label>
+      </div>
     </div>
 
     <div class="runbar">
@@ -493,6 +493,8 @@ const WASM_B64 = "AGFzbQEAAAABQQxgAX8Bf2ACf38Bf2ACf38AYAAAYAF/AGABfwF8YAN/f38AYA
   function bindDrop(dropId, inputSel, onLoad){
     const drop = $(dropId);
     const input = drop.querySelector('input[type=file]');
+    // el clic en el input no debe re-burbujear al drop y reabrir el selector
+    input.addEventListener('click', e=> e.stopPropagation());
     drop.addEventListener('click', ()=> input.click());
     drop.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click();} });
     drop.addEventListener('dragover', e=>{e.preventDefault();drop.classList.add('drag');});
@@ -510,6 +512,7 @@ const WASM_B64 = "AGFzbQEAAAABQQxgAX8Bf2ACf38Bf2ACf38AYAAAYAF/AGABfwF8YAN/f38AYA
           const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
           onLoad(wb, file.name, drop);
         }catch(err){ showErr("No pude leer «"+file.name+"»: "+err.message); }
+        finally{ input.value = ""; } // permite volver a elegir el mismo archivo
       };
       reader.readAsArrayBuffer(file);
     }
